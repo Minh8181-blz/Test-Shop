@@ -10,7 +10,7 @@ namespace Ordering.API.Domain.Entities
         public DateTime CreatedAt { get; private set; }
         public DateTime LastUpdatedAt { get; private set; }
         public string Description { get; private set; }
-        public string Status { get; private set; }
+        public int Status { get; private set; }
         public decimal Amount { get; private set; }
         public IEnumerable<OrderItem> OrderItems { get; set; }
     }

@@ -26,7 +26,7 @@ namespace Ordering.API.Infrastructure
         {
             modelBuilder.Entity<Order>().ToTable("Orders")
                  .Property(p => p.Amount)
-            .HasColumnType("decimal(10,5)");
+            .HasColumnType("decimal(20,5)");
 
             modelBuilder.Entity<OrderItem>().ToTable("OrderItems");       
         }
