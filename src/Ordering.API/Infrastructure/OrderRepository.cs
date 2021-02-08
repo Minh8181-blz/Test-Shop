@@ -12,7 +12,7 @@ namespace Ordering.API.Infrastructure
     {
         private readonly OrderingContext _context;
 
-        public IUnitOfWork<Order> UnitOfWork
+        public IUnitOfWork<int> UnitOfWork
         {
             get
             {
@@ -27,8 +27,8 @@ namespace Ordering.API.Infrastructure
 
         public Order Add(Order order)
         {
-            return _context.Orders.Add(order).Entity;
-
+            _context.Orders.Add(order);
+            return order;
         }
 
         public async Task<Order> GetAsync(int orderId)

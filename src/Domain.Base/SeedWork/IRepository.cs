@@ -4,11 +4,12 @@ namespace Domain.Base.SeedWork
 {
     public interface IRepository<T> where T : IAggregateRoot
     {
-        IUnitOfWork<T> UnitOfWork { get; }
+        IUnitOfWork<int> UnitOfWork { get; }
+
         T Add(T order);
 
-        void Update(T order);
+        void Update(T entity);
 
-        Task<T> GetAsync(int orderId);
+        Task<T> GetAsync(int id);
     }
 }

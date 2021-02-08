@@ -1,4 +1,7 @@
-﻿namespace Domain.Base.SeedWork
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+
+namespace Domain.Base.SeedWork
 {
     public abstract class Entity<T>
     {
@@ -16,10 +19,32 @@
                 _Id = value;
             }
         }
+        
+        [Timestamp]
+        public byte[] RowVersion { get; private set; }
+
+        private List<DomainEvent> _domainEvents;
+        public IReadOnlyCollection<DomainEvent> GetDomainEvents() => _domainEvents?.AsReadOnly();
+
+        public void AddDomainEvent(DomainEvent eventItem)
+        {
+            _domainEvents ??= new List<DomainEvent>();
+            _domainEvents.Add(eventItem);
+        }
 
         public bool IsTransient()
         {
             return Id.Equals(default(T));
+        }
+
+        public void RemoveDomainEvent(DomainEvent eventItem)
+        {
+            _domainEvents?.Remove(eventItem);
+        }
+
+        public void ClearDomainEvents()
+        {
+            _domainEvents?.Clear();
         }
 
         public override bool Equals(object obj)
@@ -30,7 +55,7 @@
             if (ReferenceEquals(this, obj))
                 return true;
 
-            if (this.GetType() != obj.GetType())
+            if (GetType() != obj.GetType())
                 return false;
 
             Entity<T> item = (Entity<T>)obj;
