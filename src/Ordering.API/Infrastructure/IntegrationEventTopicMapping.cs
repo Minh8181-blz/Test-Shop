@@ -10,43 +10,39 @@ namespace Infrastructure.Base.EventBus
     {
         public const string OrderExchange = "test_micro.order";
 
+        public const string PriceServiceOrderingSubQueue = "pricems_orderms_ordering";
+        public const string CatalogServiceOrderingSubQueue = "catalogms_orderms_ordering";
+
+        public const string OrderCreatedPubRoutingKey = "int_event.order_created";
+
+        public const string PriceCalculatedSubRoutingKey = "int_event.price_calculated";
+
         private readonly Dictionary<string, RabbitMqTopicModel> PubMaps = new Dictionary<string, RabbitMqTopicModel>
         {
-            { nameof(OrderCreatedIntegrationEvent), new RabbitMqTopicModel(OrderExchange, "order.int_event.created") },
+            { nameof(OrderCreatedIntegrationEvent), new RabbitMqTopicModel(OrderExchange, OrderCreatedPubRoutingKey) },
         };
 
         private readonly Dictionary<string, RabbitMqQueueModel> SubMaps = new Dictionary<string, RabbitMqQueueModel>
         {
             { nameof(PriceCalculatedIntegrationEvent),
-                new RabbitMqQueueModel(OrderExchange, "order.int_event.price_calculated", "order_int_event_price_calculated_orderms") }
+                new RabbitMqQueueModel(OrderExchange, PriceCalculatedSubRoutingKey, PriceServiceOrderingSubQueue) }
         };
 
-        public RabbitMqTopicModel GetPublishedTopic(Type type)
+        public RabbitMqTopicModel GetPublishedTopic(string eventTypeName)
         {
-            var key = type.Name;
-            if (type.IsAssignableFrom(typeof(IntegrationEvent))) {
-                throw new Exception("Invalid type parameter");
-            }
-
-            if (PubMaps.ContainsKey(key))
+            if (PubMaps.ContainsKey(eventTypeName))
             {
-                return PubMaps[key];
+                return PubMaps[eventTypeName];
             }
 
             return null;
         }
 
-        public RabbitMqQueueModel GetSubscribedQueue(Type type)
+        public RabbitMqQueueModel GetSubscribedQueue(string eventTypeName)
         {
-            var key = type.Name;
-            if (type.IsAssignableFrom(typeof(IntegrationEvent)))
+            if (SubMaps.ContainsKey(eventTypeName))
             {
-                throw new Exception("Invalid type parameter");
-            }
-
-            if (SubMaps.ContainsKey(key))
-            {
-                return SubMaps[key];
+                return SubMaps[eventTypeName];
             }
 
             return null;

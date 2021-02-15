@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Infrastructure.Base.EventBus
 {
-    public class IntegrationEventNotification<T> : INotification where T : IntegrationEvent
+    public class IntegrationEventNotification<T> : IRequest<bool> where T : IntegrationEvent
     {
         public IntegrationEventNotification(T data)
         {

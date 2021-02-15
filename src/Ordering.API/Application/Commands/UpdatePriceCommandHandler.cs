@@ -1,4 +1,5 @@
 ﻿using Application.Base.SeedWork;
+using Domain.Base.SeedWork;
 using MediatR;
 using Ordering.API.Domain.Interfaces;
 using System;
@@ -12,10 +13,12 @@ namespace Ordering.API.Application.Commands
     public class UpdatePriceCommandHandler : IRequestHandler<UpdatePriceCommand, bool>
     {
         private readonly IOrderRepository _orderRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public UpdatePriceCommandHandler(IOrderRepository orderRepository)
+        public UpdatePriceCommandHandler(IOrderRepository orderRepository, IUnitOfWork unitOfWork)
         {
             _orderRepository = orderRepository;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<bool> Handle(UpdatePriceCommand request, CancellationToken cancellationToken)
@@ -29,7 +32,7 @@ namespace Ordering.API.Application.Commands
 
             _orderRepository.Update(order);
 
-            await _orderRepository.UnitOfWork.SaveEntitiesAsync();
+            await _unitOfWork.SaveEntitiesAsync();
 
             return true;
         }

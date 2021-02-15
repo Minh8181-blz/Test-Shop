@@ -2,6 +2,7 @@ using System.Reflection;
 using Application.Base.SeedWork;
 using Domain.Base.SeedWork;
 using Infrastructure.Base;
+using Infrastructure.Base.Database;
 using Infrastructure.Base.EventBus;
 using Infrastructure.Base.EventLog;
 using Infrastructure.Base.MessageQueue;
@@ -14,6 +15,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Ordering.API.Application;
+using Ordering.API.BackgroundServices;
 using Ordering.API.Domain.Interfaces;
 using Ordering.API.Domain.Services;
 using Ordering.API.Filters;
@@ -45,9 +47,10 @@ namespace Ordering.API
 
             services.AddMediatR(Assembly.GetExecutingAssembly());
 
+            services.AddScoped<IUnitOfWork, UnitOfWork<OrderingContext>>();
             services.AddScoped<IOrderRepository, OrderRepository>();
             services.AddScoped<IProductRepository, ProductRepository>();
-            services.AddScoped<IIntegrationEventLogService, IntegrationEventLogService<OrderingContext>>();
+            services.AddScoped<IIntegrationEventService, IntegrationEventService<OrderingContext>>();
             services.AddScoped<IRequestManager, RequestManager<OrderingContext>>();
 
             services.AddTransient<IDomainEventPublisher, DomainEventPublisher>();
@@ -66,6 +69,8 @@ namespace Ordering.API
                 IIntegrationEventTopicMapping integrationEventTopicMapping = services.GetRequiredService<IIntegrationEventTopicMapping>();
                 return new IntegrationEventBus(queueProcessor, services, integrationEventTopicMapping);
             });
+
+            services.AddHostedService<IntegrationRetryBackgroundService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -26,7 +26,7 @@ namespace Infrastructure.Base.EventBus
 
         public bool PublishEvent(IntegrationEvent @event)
         {
-            RabbitMqTopicModel topicModel = _integrationEventTopicMapping.GetPublishedTopic(@event.GetType());
+            RabbitMqTopicModel topicModel = _integrationEventTopicMapping.GetPublishedTopic(@event.GetType().Name);
 
             if (topicModel == null)
                 return false;
@@ -37,7 +37,7 @@ namespace Infrastructure.Base.EventBus
 
         public bool SubscribeEvent<T>() where T : IntegrationEvent
         {
-            RabbitMqQueueModel queueModel = _integrationEventTopicMapping.GetSubscribedQueue(typeof(T));
+            RabbitMqQueueModel queueModel = _integrationEventTopicMapping.GetSubscribedQueue(typeof(T).Name);
 
             if (queueModel == null)
                 return false;
@@ -46,7 +46,7 @@ namespace Infrastructure.Base.EventBus
             return true;
         }
 
-        private void Consume<T>(T @event)
+        private bool Consume<T>(T @event)
         {
             var eventType = @event.GetType();
 
@@ -57,7 +57,9 @@ namespace Infrastructure.Base.EventBus
             using var serviceScope = _serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope();
             var mediator = serviceScope.ServiceProvider.GetRequiredService<IMediator>();
 
-            mediator.Publish(notification).Wait();
+            var result = mediator.Send(notification).Result as bool?;
+
+            return result.Value;
         }
     }
 }

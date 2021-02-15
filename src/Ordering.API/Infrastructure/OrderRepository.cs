@@ -12,14 +12,6 @@ namespace Ordering.API.Infrastructure
     {
         private readonly OrderingContext _context;
 
-        public IUnitOfWork<int> UnitOfWork
-        {
-            get
-            {
-                return _context;
-            }
-        }
-
         public OrderRepository(OrderingContext context)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));

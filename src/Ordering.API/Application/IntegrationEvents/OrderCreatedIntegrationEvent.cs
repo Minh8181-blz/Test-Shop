@@ -5,7 +5,7 @@ namespace Ordering.API.Application.IntegrationEvents
 {
     public class OrderCreatedIntegrationEvent : IntegrationEvent
     {
-        public OrderCreatedIntegrationEvent(Order order) : base()
+        public OrderCreatedIntegrationEvent(Order order, bool entityHasBeenCreated) : base(order, entityHasBeenCreated)
         {
             Order = order;
         }

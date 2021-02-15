@@ -6,9 +6,12 @@ using System.Threading.Tasks;
 
 namespace Domain.Base.SeedWork
 {
-    public interface IUnitOfWork<T> : IDisposable
+    public interface IUnitOfWork
     {
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
         Task<bool> SaveEntitiesAsync(CancellationToken cancellationToken = default);
+        Task BeginTransactionAsync(CancellationToken cancellationToken = default);
+        Task CommitAsync(CancellationToken cancellationToken = default);
+        Task RollbackAsync(CancellationToken cancellationToken = default);
     }
 }

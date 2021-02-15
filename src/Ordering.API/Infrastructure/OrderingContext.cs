@@ -10,32 +10,18 @@ using System.Threading.Tasks;
 
 namespace Ordering.API.Infrastructure
 {
-    public class OrderingContext : DbContext, IUnitOfWork<int>, IIntegrationEventDbContext, IRequestManagerDbContext
+    public class OrderingContext : DbContext, IIntegrationEventDbContext, IRequestManagerDbContext
     {
-        private readonly IDomainEventPublisher _domainEventPublisher;
-
-        public OrderingContext(DbContextOptions<OrderingContext> options, IDomainEventPublisher domainEventPublisher)
+        public OrderingContext(DbContextOptions<OrderingContext> options)
            : base(options)
         {
-            _domainEventPublisher = domainEventPublisher;
         }
 
         public virtual DbSet<Order> Orders { get; set; }
         public virtual DbSet<OrderItem> OrderItems { get; set; }
         public virtual DbSet<Product> Products { get; set; }
         public virtual DbSet<IntegrationEventLogEntry> EventLogEntries { get; set; }
-        public DbSet<RequestEntry> RequestEntries { get; set; }
-
-        public async Task<bool> SaveEntitiesAsync(CancellationToken cancellationToken = default)
-        {
-            var domainEvents = GetDomainEvents();
-
-            await _domainEventPublisher.Publish(domainEvents);
-
-            await base.SaveChangesAsync();
-
-            return true;
-        }
+        public virtual DbSet<RequestEntry> RequestEntries { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -68,25 +54,6 @@ namespace Ordering.API.Infrastructure
             var requestEntryTableBuilder = modelBuilder.Entity<RequestEntry>().ToTable("RequestEntry");
 
             requestEntryTableBuilder.HasKey(x => x.Id);
-        }
-
-        private IEnumerable<DomainEvent> GetDomainEvents()
-        {
-            var domainEntities = ChangeTracker
-                .Entries<Entity<int>>()
-                .Where(x => {
-                    var events = x.Entity.GetDomainEvents();
-                    return events != null && events.Any();
-                });
-
-            var domainEvents = domainEntities
-                .SelectMany(x => x.Entity.GetDomainEvents())
-                .ToList();
-
-            domainEntities.ToList()
-                .ForEach(entity => entity.Entity.ClearDomainEvents());
-
-            return domainEvents;
         }
     }
 }

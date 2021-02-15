@@ -3,9 +3,9 @@ using System.Threading.Tasks;
 
 namespace Application.Base.SeedWork
 {
-    public interface IIntegrationEventLogService
+    public interface IIntegrationEventService
     {
-        void SaveEvent(IntegrationEvent @event);
+        Task SaveEventAsync(IntegrationEvent @event);
         Task PublishAsync(IntegrationEvent @event);
     }
 }

@@ -7,7 +7,7 @@ namespace Infrastructure.Base.EventBus
 {
     public interface IIntegrationEventTopicMapping
     {
-        RabbitMqTopicModel GetPublishedTopic(Type type);
-        RabbitMqQueueModel GetSubscribedQueue(Type type);
+        RabbitMqTopicModel GetPublishedTopic(string eventTypeName);
+        RabbitMqQueueModel GetSubscribedQueue(string eventTypeName);
     }
 }

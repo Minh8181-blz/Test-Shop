@@ -1,26 +1,27 @@
 ﻿using Application.Base.SeedWork;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace Infrastructure.Base.EventLog
 {
-    public class IntegrationEventLogService<T> : IIntegrationEventLogService where T : IIntegrationEventDbContext
+    public class IntegrationEventService<T> : IIntegrationEventService where T : IIntegrationEventDbContext
     {
         protected readonly IIntegrationEventDbContext _context;
         protected readonly IIntegrationEventBus _eventBus;
 
-        public IntegrationEventLogService(T context, IIntegrationEventBus eventBus)
+        public IntegrationEventService(T context, IIntegrationEventBus eventBus)
         {
             _context = context;
             _eventBus = eventBus;
         }
 
-        public void SaveEvent(IntegrationEvent @event)
+        public async Task SaveEventAsync(IntegrationEvent @event)
         {
             var eventLogEntry = new IntegrationEventLogEntry(@event);
 
-            _context.EventLogEntries.Add(eventLogEntry);
+            await _context.EventLogEntries.AddAsync(eventLogEntry);
         }
 
         public async Task PublishAsync(IntegrationEvent @event)
@@ -54,7 +55,8 @@ namespace Infrastructure.Base.EventLog
 
         protected Task UpdateEventStatus(Guid eventId, EventStateEnum status)
         {
-            var eventLogEntry = _context.EventLogEntries.Single(ie => ie.EventId == eventId);
+            var eventLogEntry = _context.EventLogEntries.SingleOrDefault(ie => ie.EventId == eventId);
+
             eventLogEntry.UpdateState(status);
 
             _context.EventLogEntries.Update(eventLogEntry);

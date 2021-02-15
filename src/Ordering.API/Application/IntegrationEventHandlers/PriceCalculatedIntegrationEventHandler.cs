@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace Ordering.API.Application.IntegrationEventHandlers
 {
-    public class PriceCalculatedIntegrationEventHandler : INotificationHandler<IntegrationEventNotification<PriceCalculatedIntegrationEvent>>
+    public class PriceCalculatedIntegrationEventHandler : IRequestHandler<IntegrationEventNotification<PriceCalculatedIntegrationEvent>, bool>
     {
         private readonly IMediator _mediator;
 
@@ -23,13 +23,13 @@ namespace Ordering.API.Application.IntegrationEventHandlers
             _mediator = mediator;
         }
 
-        public async Task Handle(IntegrationEventNotification<PriceCalculatedIntegrationEvent> notification, CancellationToken cancellationToken)
+        public async Task<bool> Handle(IntegrationEventNotification<PriceCalculatedIntegrationEvent> notification, CancellationToken cancellationToken)
         {
             var command = new UpdatePriceCommand(notification.Data.OrderId, notification.Data.Total);
 
             var identifiedCommand = new IdentifiedCommand<UpdatePriceCommand, bool>(command, notification.Data.Id);
 
-            await _mediator.Send(identifiedCommand, cancellationToken);
+            return await _mediator.Send(identifiedCommand, cancellationToken);
         }
     }
 }

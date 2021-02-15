@@ -11,6 +11,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Infrastructure.Base.MessageQueue
 {
@@ -46,7 +47,7 @@ namespace Infrastructure.Base.MessageQueue
             return true;
         }
 
-        public bool SubscribeQueueToExchange<T>(string exchange, string routingKey, string queue, Action<T> onMessageReceived)
+        public bool SubscribeQueueToExchange<T>(string exchange, string routingKey, string queue, Func<T, bool> onMessageReceived)
         {
             var channel = GetChannel(exchange, routingKey);
 
@@ -65,12 +66,34 @@ namespace Infrastructure.Base.MessageQueue
                 {
                     ContractResolver = new IntegrationEventResolverContract()
                 });
-                onMessageReceived.Invoke(body);
+                bool result = onMessageReceived.Invoke(body);
 
-                channel.BasicAck(deliveryTag: ea.DeliveryTag, multiple: false);
+                if (result)
+                    channel.BasicAck(deliveryTag: ea.DeliveryTag, multiple: false);
+                else
+                    channel.BasicReject(deliveryTag: ea.DeliveryTag, requeue: true);    //todo
             };
 
             channel.BasicConsume(queue: queueName, autoAck: false, consumer: consumer);
+
+            return true;
+        }
+
+        public bool PublishPlainMessageToExchange(string exchange, string routingKey, string message)
+        {
+            var channel = GetChannel(exchange, routingKey);
+
+            channel.ExchangeDeclare(exchange: exchange, type: "topic", durable: true);
+
+            var body = Encoding.UTF8.GetBytes(message);
+
+            var properties = channel.CreateBasicProperties();
+            properties.Persistent = true;
+
+            channel.BasicPublish(exchange: exchange,
+                                 routingKey: routingKey,
+                                 basicProperties: properties,
+                                 body: body);
 
             return true;
         }

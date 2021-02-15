@@ -6,6 +6,7 @@ using Ordering.API.Application.IntegrationEvents;
 using Ordering.API.Domain.Entities;
 using Ordering.API.Domain.Interfaces;
 using Ordering.API.Domain.Services;
+using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -15,33 +16,40 @@ namespace Ordering.API.Application.Commands
     public class CreateOrderCommandHandler : IRequestHandler<CreateOrderCommand, bool>
     {
         private readonly IOrderRepository _orderRepository;
-        private readonly IIntegrationEventLogService _integrationEventLogService;
+        private readonly IIntegrationEventService _integrationEventService;
+        private readonly IUnitOfWork _unitOfWork;
 
         public CreateOrderCommandHandler(
             IOrderRepository orderRepository,
-            IIntegrationEventLogService integrationEventLogService)
+            IIntegrationEventService integrationEventService,
+            IUnitOfWork unitOfWork)
         {
             _orderRepository = orderRepository;
-            _integrationEventLogService = integrationEventLogService;
+            _integrationEventService = integrationEventService;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<bool> Handle(CreateOrderCommand notification, CancellationToken cancellationToken)
         {
+            await _unitOfWork.BeginTransactionAsync();
+
             var orderItems = notification.OrderItems.Select(x => OrderItem.CreateOrderItem(x.ProductId, x.Quantity));
 
             var order = Order.CreateOrder(notification.CustomerId, notification.Description, orderItems);
 
             _orderRepository.Add(order);
 
-            var @event = new OrderCreatedIntegrationEvent(order);
+            await _unitOfWork.SaveEntitiesAsync();
 
-            _integrationEventLogService.SaveEvent(@event);
+            var @event = new OrderCreatedIntegrationEvent(order, true);
 
-            await _orderRepository.UnitOfWork.SaveEntitiesAsync();
+            await _integrationEventService.SaveEventAsync(@event);
 
-            order = await _orderRepository.GetAsync(order.Id);
+            await _unitOfWork.SaveChangesAsync();
 
-            await _integrationEventLogService.PublishAsync(@event);
+            await _unitOfWork.CommitAsync();
+
+            await _integrationEventService.PublishAsync(@event);
 
             return true;
         }
