@@ -1,0 +1,15 @@
+﻿@using Website.MarketingSite.Models.ViewModels
+
+@model IEnumerable<ProductViewModel>
+
+@if (Model != null && Model.Any())
+{
+    <p>@Model.Count() asd</p>
+    foreach (var product in Model)
+    {
+        <p>
+            @product.Name<br />
+            <strong>@product.Description</strong>
+        </p>
+    }
+} 

@@ -64,11 +64,7 @@ namespace Ordering.API
 
             services.AddTransient<IOrderDomainService, OrderDomainService>();
 
-            services.AddSingleton<IIntegrationEventBus, IntegrationEventBus>(services => {
-                IQueueProcessor queueProcessor = services.GetRequiredService<IQueueProcessor>();
-                IIntegrationEventTopicMapping integrationEventTopicMapping = services.GetRequiredService<IIntegrationEventTopicMapping>();
-                return new IntegrationEventBus(queueProcessor, services, integrationEventTopicMapping);
-            });
+            services.AddSingleton<IIntegrationEventBus, IntegrationEventBus>();
 
             services.AddHostedService<IntegrationRetryBackgroundService>();
         }

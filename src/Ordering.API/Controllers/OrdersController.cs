@@ -17,21 +17,11 @@ namespace Ordering.API.Controllers
     [ApiController]
     public class OrdersController : ControllerBase
     {
-        private readonly IOrderRepository _orderRepository;
         private readonly IMediator _mediator;
 
-        public OrdersController(IOrderRepository orderRepository, IMediator mediator)
+        public OrdersController(IMediator mediator)
         {
-            _orderRepository = orderRepository;
             _mediator = mediator;
-        }
-
-        [HttpGet]
-        [Route("{id}")]
-        public async Task<ActionResult> GetOrders(int id)
-        {
-            var orders = await _orderRepository.GetAsync(id);
-            return Ok(orders);
         }
 
         [HttpPost]

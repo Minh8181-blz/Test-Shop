@@ -12,6 +12,8 @@ namespace Ordering.API.Infrastructure
 {
     public class OrderingContext : DbContext, IIntegrationEventDbContext, IRequestManagerDbContext
     {
+        private const string Schema = "ms_ordering";
+
         public OrderingContext(DbContextOptions<OrderingContext> options)
            : base(options)
         {
@@ -25,7 +27,7 @@ namespace Ordering.API.Infrastructure
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            var orderTableBuider = modelBuilder.Entity<Order>().ToTable("Orders");
+            var orderTableBuider = modelBuilder.Entity<Order>().ToTable("Orders", Schema);
 
             orderTableBuider
                 .Property(p => p.RowVersion)
@@ -35,9 +37,9 @@ namespace Ordering.API.Infrastructure
                 .Property(p => p.Amount)
                 .HasColumnType("decimal(20,5)");
 
-            modelBuilder.Entity<OrderItem>().ToTable("OrderItems");    
+            modelBuilder.Entity<OrderItem>().ToTable("OrderItems", Schema);    
             
-            var productTableBuilder = modelBuilder.Entity<Product>().ToTable("Products");
+            var productTableBuilder = modelBuilder.Entity<Product>().ToTable("Products", Schema);
 
             productTableBuilder
                 .Property(p => p.Price)
@@ -47,11 +49,11 @@ namespace Ordering.API.Infrastructure
                 .Property(p => p.RowVersion)
                 .IsConcurrencyToken();
 
-            var eventLogTableBuilder = modelBuilder.Entity<IntegrationEventLogEntry>().ToTable("IntegrationEventLog");
+            var eventLogTableBuilder = modelBuilder.Entity<IntegrationEventLogEntry>().ToTable("IntegrationEventLog", Schema);
 
             eventLogTableBuilder.HasKey(x => x.EventId);
 
-            var requestEntryTableBuilder = modelBuilder.Entity<RequestEntry>().ToTable("RequestEntry");
+            var requestEntryTableBuilder = modelBuilder.Entity<RequestEntry>().ToTable("RequestEntry", Schema);
 
             requestEntryTableBuilder.HasKey(x => x.Id);
         }

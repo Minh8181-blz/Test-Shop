@@ -3,6 +3,7 @@ using Infrastructure.Base.EventBus;
 using Infrastructure.Base.EventLog;
 using Infrastructure.Base.MessageQueue;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Ordering.API.Infrastructure;
@@ -19,24 +20,28 @@ namespace Ordering.API.BackgroundServices
         private readonly IServiceProvider _services;
         private readonly IQueueProcessor _queueProcessor;
         private readonly IIntegrationEventTopicMapping _topicMapping;
+        private readonly int IntegrationEventRetryIntervalInMinute;
+
         private const int RetryTimes = 5;
         private OrderingContext _context;
 
         public IntegrationRetryBackgroundService(
             IServiceProvider services,
             IQueueProcessor queueProcessor,
-            IIntegrationEventTopicMapping topicMapping)
+            IIntegrationEventTopicMapping topicMapping,
+            IConfiguration configuration)
         {
             _services = services;
             _queueProcessor = queueProcessor;
             _topicMapping = topicMapping;
+            IntegrationEventRetryIntervalInMinute = configuration.GetValue<int>("IntegrationEventRetryIntervalInMinute");
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             while (!stoppingToken.IsCancellationRequested)
             {
-                await Task.Delay(300000);
+                await Task.Delay(IntegrationEventRetryIntervalInMinute * 60);
                 using var scope = _services.CreateScope();
                 _context = scope.ServiceProvider.GetRequiredService<OrderingContext>();
                 await RepublishEvents();

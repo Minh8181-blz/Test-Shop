@@ -44,7 +44,7 @@ namespace Ordering.API.Filters
             {
                 var json = new JsonErrorResponse
                 {
-                    Messages = new[] { "An error occur.Try it again." }
+                    Messages = new[] { "An error occured.Try it again." }
                 };
 
                 if (env.IsDevelopment())
