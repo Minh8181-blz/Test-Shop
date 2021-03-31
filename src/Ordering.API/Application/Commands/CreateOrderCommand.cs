@@ -15,9 +15,9 @@ namespace Ordering.API.Application.Commands
             Description = description;
         }
 
-        public int CustomerId { get; set; }
-        public IEnumerable<OrderItemDto> OrderItems { get; set; }
-        public DateTime CreatedAt { get; set; }
-        public string Description { get; set; }
+        public int CustomerId { get; }
+        public IEnumerable<OrderItemDto> OrderItems { get; }
+        public DateTime CreatedAt { get; }
+        public string Description { get; }
     }
 }

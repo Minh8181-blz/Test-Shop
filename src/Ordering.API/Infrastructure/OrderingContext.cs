@@ -1,12 +1,7 @@
-﻿using Domain.Base.SeedWork;
-using Infrastructure.Base.EventLog;
+﻿using Infrastructure.Base.EventLog;
 using Infrastructure.Base.RequestManager;
 using Microsoft.EntityFrameworkCore;
 using Ordering.API.Domain.Entities;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Ordering.API.Infrastructure
 {

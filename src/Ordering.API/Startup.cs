@@ -50,6 +50,7 @@ namespace Ordering.API
             services.AddScoped<IUnitOfWork, UnitOfWork<OrderingContext>>();
             services.AddScoped<IOrderRepository, OrderRepository>();
             services.AddScoped<IProductRepository, ProductRepository>();
+
             services.AddScoped<IIntegrationEventService, IntegrationEventService<OrderingContext>>();
             services.AddScoped<IRequestManager, RequestManager<OrderingContext>>();
 

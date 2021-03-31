@@ -10,7 +10,7 @@ namespace Ordering.API.Application.Commands
             Total = total;
         }
 
-        public int OrderId { get; private set; }
-        public decimal Total { get; private set; }
+        public int OrderId { get; }
+        public decimal Total { get; }
     }
 }

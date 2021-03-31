@@ -28,7 +28,7 @@ namespace Ordering.API.Controllers
         public async Task<ActionResult> CreateOrder(OrderViewModel model, [FromHeader(Name = "x-requestid")] string requestId)
         {
             if (!ModelState.IsValid)
-                return BadRequest(ModelState.ErrorCount);
+                return BadRequest(ModelState.Values.SelectMany(x => x.Errors));
 
             if (!Guid.TryParse(requestId, out Guid guid) || guid == Guid.Empty)
             {

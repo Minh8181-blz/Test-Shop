@@ -1,0 +1,56 @@
+﻿@using Website.MarketingSite.Models.ViewModels
+@model SignUpViewModel
+
+<section class="shop checkout section">
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-8 offset-sm-2">
+                <div class="checkout-form">
+                    <h1>Create a new account</h1>
+                    <p>Please register in order to shop more quickly!</p>
+
+                    <!-- Form -->
+                    <form id="frm_signup" asp-controller="Auth" asp-action="SignUp"
+                          asp-route-returnurl="@ViewData["ReturnUrl"]"
+                          method="post" class="form" role="form">
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <label>Email Address<span>*</span></label>
+                                    @Html.TextBoxFor(x => x.Email)
+                                    @Html.ValidationMessageFor(x => x.Email)
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <label>Password<span>*</span></label>
+                                    @Html.PasswordFor(x => x.Password)
+                                    @Html.ValidationMessageFor(x => x.Password)
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <label>Re-typed Password<span>*</span></label>
+                                    @Html.PasswordFor(x => x.ConfirmPassword)
+                                    @Html.ValidationMessageFor(x => x.ConfirmPassword)
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <button type="submit" class="btn">Create account</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                    <!--/ End Form -->
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section scripts {
+    @await Html.PartialAsync("~/Views/Shared/_ValidationScriptsPartial.cshtml")
+<script src="~/js/common/form-helpers.js"></script>
+    <script src="~/js/pages/sign-up.js"></script>
+}

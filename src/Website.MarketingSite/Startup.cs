@@ -1,13 +1,9 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Website.MarketingSite.Configurations;
 using Website.MarketingSite.Services;
 
@@ -36,9 +32,17 @@ namespace Website.MarketingSite
                 services.AddControllersWithViews();
             }
 
-            services.AddHttpClient<ApiService>();
+            services
+                .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+                .AddCookie(options => {
+                    options.Cookie.Name = "id_cookie";
+                    options.LoginPath = "/login";
+                });
 
-            ApiEndpointConfiguration.GetConfiguration(Configuration);
+            services.AddHttpClient<ApiService>();
+            services.AddHttpClient<AuthService>();
+
+            services.AddSingleton<ApiEndpointConfiguration>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -59,6 +63,7 @@ namespace Website.MarketingSite
 
             app.UseRouting();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
